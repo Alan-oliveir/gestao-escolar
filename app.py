@@ -1,13 +1,21 @@
 from fastapi import FastAPI
+from database import engine, Base
+from routers.alunos import alunos_router
+from routers.cursos import cursos_router
+from routers.matriculas import matriculas_router
 
-app = FastAPI()
+Base.metadata.create_all(bind=engine)
 
+app = FastAPI(
+    title="API de Gestão Escolar",
+    description="""
+        Esta API fornece endpoints para gerenciar alunos, cursos e turmas, em uma instituição de ensino.  
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+        Permite realizar diferentes operações em cada uma dessas entidades.
+    """,
+    version="1.0.0",
+)
 
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.include_router(alunos_router, tags=["alunos"])
+app.include_router(cursos_router, tags=["cursos"])
+app.include_router(matriculas_router, tags=["matriculas"])
