@@ -19,11 +19,11 @@ Este projeto é uma API desenvolvida com FastAPI para gerenciar alunos, cursos e
    ```
 
 3. **Ative o ambiente virtual:**
-   - No Linux/Mac:
-     ```sh
-     source venv/bin/activate
-     ```
-   - No Windows, abra um terminal no modo administrador e execute o comando:
+    - No Linux/Mac:
+      ```sh
+      source venv/bin/activate
+      ```
+    - No Windows, abra um terminal no modo administrador e execute o comando:
    ```sh
    Set-ExecutionPolicy RemoteSigned
    ```
@@ -58,7 +58,6 @@ gcloud auth login
 gcloud config set project PROJECT_ID
 gcloud run deploy --port=8000
 ```
-
 
 ## Estrutura do Projeto
 

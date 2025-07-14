@@ -1,16 +1,20 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
-from schemas import Curso
-from models import Curso as ModelCurso
+
 from database import get_db
+from models import Curso as ModelCurso
+from schemas import Curso
 
 cursos_router = APIRouter()
+
 
 @cursos_router.get("/cursos", response_model=List[Curso])
 def read_cursos(db: Session = Depends(get_db)):
     cursos = db.query(ModelCurso).all()
     return [Curso.from_orm(curso) for curso in cursos]
+
 
 @cursos_router.post("/cursos", response_model=Curso)
 def create_curso(curso: Curso, db: Session = Depends(get_db)):
@@ -19,6 +23,7 @@ def create_curso(curso: Curso, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_curso)
     return Curso.from_orm(db_curso)
+
 
 @cursos_router.put("/cursos/{codigo_curso}", response_model=Curso)
 def update_curso(codigo_curso: str, curso: Curso, db: Session = Depends(get_db)):
@@ -33,13 +38,13 @@ def update_curso(codigo_curso: str, curso: Curso, db: Session = Depends(get_db))
     db.refresh(db_curso)
     return Curso.from_orm(db_curso)
 
+
 @cursos_router.get("/cursos/{codigo_curso}", response_model=Curso)
 def read_curso_por_codigo(codigo_curso: str, db: Session = Depends(get_db)):
     db_curso = db.query(ModelCurso).filter(ModelCurso.codigo == codigo_curso).first()
     if db_curso is None:
         raise HTTPException(status_code=404, detail="Nenhum curso encontrado com esse código")
     return Curso.from_orm(db_curso)
-
 
 # Não buscar um curso pelo ID nem deletar em nenhuma hipótese
 

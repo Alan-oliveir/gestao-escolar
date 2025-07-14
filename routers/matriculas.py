@@ -1,15 +1,17 @@
+from typing import List, Dict, Union
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Dict, Union
-from schemas import Matricula
-from models import Matricula as ModelMatricula, Aluno as ModelAluno, Curso as ModelCurso # Importe os modelos
+
 from database import get_db
+from models import Matricula as ModelMatricula, Aluno as ModelAluno, Curso as ModelCurso  # Importe os modelos
+from schemas import Matricula
 
 matriculas_router = APIRouter()
 
+
 @matriculas_router.post("/matriculas", response_model=Matricula, status_code=status.HTTP_201_CREATED)
 def create_matricula(matricula: Matricula, db: Session = Depends(get_db)):
-    
     db_aluno = db.query(ModelAluno).filter(ModelAluno.id == matricula.aluno_id).first()
     db_curso = db.query(ModelCurso).filter(ModelCurso.id == matricula.curso_id).first()
 
@@ -23,7 +25,6 @@ def create_matricula(matricula: Matricula, db: Session = Depends(get_db)):
     return Matricula.from_orm(db_matricula)
 
 
-
 @matriculas_router.get("/matriculas/aluno/{nome_aluno}", response_model=Dict[str, Union[str, List[str]]])
 def read_matriculas_por_nome_aluno(nome_aluno: str, db: Session = Depends(get_db)):
     db_aluno = db.query(ModelAluno).filter(ModelAluno.nome.ilike(f"%{nome_aluno}%")).first()
@@ -33,14 +34,15 @@ def read_matriculas_por_nome_aluno(nome_aluno: str, db: Session = Depends(get_db
 
     cursos_matriculados = []
     for matricula in db_aluno.matriculas:
-        curso = matricula.curso  
-        if curso:  
+        curso = matricula.curso
+        if curso:
             cursos_matriculados.append(curso.nome)
 
     if not cursos_matriculados:
         raise HTTPException(status_code=404, detail=f"O aluno '{nome_aluno}' não possui matrículas cadastradas.")
 
     return {"aluno": db_aluno.nome, "cursos": cursos_matriculados}
+
 
 @matriculas_router.get("/matriculas/curso/{codigo_curso}", response_model=Dict[str, Union[str, List[str]]])
 def read_alunos_matriculados_por_codigo_curso(codigo_curso: str, db: Session = Depends(get_db)):
@@ -57,6 +59,7 @@ def read_alunos_matriculados_por_codigo_curso(codigo_curso: str, db: Session = D
             alunos_matriculados.append(aluno.nome)
 
     if not alunos_matriculados:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Nenhum aluno matriculado no curso '{db_curso.nome}'.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Nenhum aluno matriculado no curso '{db_curso.nome}'.")
 
     return {"curso": db_curso.nome, "alunos": alunos_matriculados}
