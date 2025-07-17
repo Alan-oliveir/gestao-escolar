@@ -66,6 +66,10 @@ class Aluno(BaseModel):
         }
 
 
+
+
+
+
 Alunos = List[Aluno]
 
 
